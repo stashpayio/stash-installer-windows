@@ -18,6 +18,11 @@
 !define VERSIONREVISION 2
 !define SPROUT_PROVING_HASH "af23e521697ed69d8b8a6b9c53e48300"
 !define SPROUT_VERIFYING_HASH "21e8b499aa84b5920ca0cea260074f34"
+
+!define SAPLING_SPEND_HASH "0f44c12ef115ae019decf18ade583b20"
+!define SAPLING_OUTPUT_HASH "924daf81b87a81bbbb9c7d18562046c8"
+!define SAPLING_SPROUT_GROTH16_HASH "00f0cbfc8651ea4003eea5f627b0cd73"
+
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
 !define HELPURL "https://github.com/stashpayio" # "Support Information" link
@@ -142,6 +147,83 @@ section "install"
 		Goto download_proving_key
 	${EndIf}
 
+	# download_sapling_spend_params
+	download_sapling_spend_params:
+	IfFileExists "$APPDATA\ZcashParams\sapling-spend.params" check_sapling_spend_params 0
+	DetailPrint "Downloading: sapling-spend.params..."
+	inetc::get /RESUME "Resume download?" "https://z.cash/downloads/sapling-spend.params" "$APPDATA\ZcashParams\sapling-spend.params" /END
+    Pop $0 # return value = exit code, "OK" if OK
+	DetailPrint "Download status: $0"
+	
+	${If} $0 != "OK"
+    	MessageBox mb_iconstop "Error downloading sapling-spend.params. Check the internet connection and run the installer again.$\r$\n $0"
+		Quit
+	${EndIf}
+
+	# Check sapling-spend.params
+	# 0f44c12ef115ae019decf18ade583b20  sapling-spend.params
+	check_sapling_spend_params:
+	DetailPrint "Verifying sapling-spend.params..."
+	md5dll::GetMD5File "$APPDATA\ZcashParams\sapling-spend.params"
+  	Pop $0
+    DetailPrint "sapling-spend.params hash: [$0]"
+	${If} $0 != "${SAPLING_SPEND_HASH}"
+    	MessageBox mb_iconstop "Hash check failed for sapling-spend.params. The installer will try and download again $\r$\n$0" ;Show cancel/error message
+		Delete "$APPDATA\ZcashParams\sapling-spend.params"		
+		Goto download_sapling_spend_params
+	${EndIf}
+
+	# download_sapling_output_params
+	download_sapling_output_params:
+	IfFileExists "$APPDATA\ZcashParams\sapling-output.params" check_sapling_output_params 0
+	DetailPrint "Downloading: sapling-output.params..."
+	inetc::get /RESUME "Resume download?" "https://z.cash/downloads/sapling-output.params" "$APPDATA\ZcashParams\sapling-output.params" /END
+    Pop $0 # return value = exit code, "OK" if OK
+	DetailPrint "Download status: $0"
+	
+	${If} $0 != "OK"
+    	MessageBox mb_iconstop "Error downloading sapling-output.params. Check the internet connection and run the installer again.$\r$\n $0"
+		Quit
+	${EndIf}
+
+	# Check sapling-output.params
+	# 924daf81b87a81bbbb9c7d18562046c8  sapling-output.params
+	check_sapling_output_params:
+	DetailPrint "Verifying sapling-output.params..."
+	md5dll::GetMD5File "$APPDATA\ZcashParams\sapling-output.params"
+  	Pop $0
+    DetailPrint "sapling-output.params hash: [$0]"
+	${If} $0 != "${SAPLING_OUTPUT_HASH}"
+    	MessageBox mb_iconstop "Hash check failed for sapling-output.params. The installer will try and download again $\r$\n$0" ;Show cancel/error message
+		Delete "$APPDATA\ZcashParams\sapling-output.params"		
+		Goto download_sapling_output_params
+	${EndIf}
+
+	# download_sprout_groth16_params
+	download_sprout_groth16_params:
+	IfFileExists "$APPDATA\ZcashParams\sprout-groth16.params" check_sprout_groth16_params 0
+	DetailPrint "Downloading: sprout-groth16.params..."
+	inetc::get /RESUME "Resume download?" "https://z.cash/downloads/sprout-groth16.params" "$APPDATA\ZcashParams\sprout-groth16.params" /END
+    Pop $0 # return value = exit code, "OK" if OK
+	DetailPrint "Download status: $0"
+	
+	${If} $0 != "OK"
+    	MessageBox mb_iconstop "Error downloading sprout-groth16.params. Check the internet connection and run the installer again.$\r$\n $0"
+		Quit
+	${EndIf}
+
+	# Check sprout-groth16.params
+	# 00f0cbfc8651ea4003eea5f627b0cd73  sprout-groth16.params
+	check_sprout_groth16_params:
+	DetailPrint "Verifying sprout-groth16.params..."
+	md5dll::GetMD5File "$APPDATA\ZcashParams\sprout-groth16.params"
+  	Pop $0
+    DetailPrint "sprout-groth16.params hash: [$0]"
+	${If} $0 != "${SAPLING_SPROUT_GROTH16_HASH}"
+    	MessageBox mb_iconstop "Hash check failed for sprout-groth16.params. The installer will try and download again $\r$\n$0" ;Show cancel/error message
+		Delete "$APPDATA\ZcashParams\sprout-groth16.params"		
+		Goto download_sprout_groth16_params
+	${EndIf}
 
 	# Write stash config file
     SetOutPath "$APPDATA\${CONFIG_FOLDER}"
